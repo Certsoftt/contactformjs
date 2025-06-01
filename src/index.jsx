@@ -1,55 +1,44 @@
-import { useState } from "react";
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import {DataProvider} from "/src/providers/DataProvider"
+import {LanguageProvider} from "/src/providers/LanguageProvider"
+import {ThemeProvider} from "/src/providers/ThemeProvider"
+import {GlobalStateProvider} from "/src/providers/GlobalStateProvider"
+import {FeedbacksProvider} from "/src/providers/FeedbacksProvider"
+import {WindowProvider} from "/src/providers/WindowProvider"
+import App from "/src/components/App.jsx"
+import Preloader from "/src/components/Preloader.jsx"
 
-export function Get(input){
-    this.input = input
-    this.response;
-    this.data;
-}
+const AppProviders = ({ children }) => (
+    <DataProvider>
+        <LanguageProvider>
+            <FeedbacksProvider>
+                <WindowProvider>
+                    <ThemeProvider>
+                        <GlobalStateProvider>
+                            {children}
+                        </GlobalStateProvider>
+                    </ThemeProvider>
+                </WindowProvider>
+            </FeedbacksProvider>
+        </LanguageProvider>
+    </DataProvider>
+)
 
-Get.prototype.api = async function (endpoint="",params=""){
-    const [fetch, setFetch] = useState()
-    if(this.input == "posts"){
-        if(endpoint == ""){
-            this.response = await fetch(`https://jsonplaceholder.typicode.com/${this.input}`)
-            this.data = this.response.json().then(result=>{
-                setFetch(result)
-            })
-        }else{
-            this.response = await fetch(`https://jsonplaceholder.typicode.com/${this.input}/${endpoint}`)
-            this.data = this.response.json().then(result=>{
-                setFetch(result)
-            })
-        }
-    }
-    if(this.input == "repos"){
-        if(params !== "" && endpoint === ""){
-            this.response = await fetch(`https://api.github.com/users/${params}/${this.input}`)
-            this.data = this.response.json().then(result=>{
-                setFetch(result)
-            })
-        }else if(params !== "" && endpoint !== ""){
-            this.response = await fetch(`https://api.github.com/users/${params}/${this.input}/${endpoint}`)
-            this.data = this.response.json().then(result=>{
-                setFetch(result)
-            })
-        }else{
-            console.log(`set repo username as it is a required argument`)
-        } 
-    }
-    if(this.input == "movies"){
-        if(params === "" && endpoint === ""){
-            this.response = await fetch(`https://yts.mx/api/v2/movie_details.json`)
-            this.data = this.response.json().then(result=>{
-                setFetch(result)
-            })
-        }else if(endpoint !== ""){
-            this.response = await fetch(`https://yts.mx/api/v2/movie_details.json/${endpoint}`)
-            this.data = this.response.json().then(result=>{
-                setFetch(result)
-            })
-        }else{
-            console.log(`Error in endpoint query params. Re-check endpoints params`)
-        } 
-    }
-    return fetch
-}
+let container = null
+
+document.addEventListener('DOMContentLoaded', function(event) {
+    if(container)
+        return
+
+    container = document.getElementById('root')
+    createRoot(document.getElementById('root')).render(
+        <StrictMode>
+            <Preloader>
+                <AppProviders>
+                    <App/>
+                </AppProviders>
+            </Preloader>
+        </StrictMode>
+    )
+})
